@@ -44,21 +44,5 @@ public class User {
             }
         }).start();
     }
-    public void sendImage(byte[] bytes) throws IOException {
-        dataOutputStream.writeUTF("*image*");
-        dataOutputStream.writeInt(bytes.length);
-        dataOutputStream.write(bytes);
-        dataOutputStream.flush();
-    }
-
-   private void recieveImage() throws IOException {
-        String message = dataInputStream.readUTF();
-        int size = dataInputStream.readInt();
-        byte[] bytes = new byte[size];
-        dataInputStream.readFully(bytes);
-       // System.out.println(name+"- Image Recieved from "+ message);
-       ClientFormController.setImage(bytes,message);
-    }
-
 }
 

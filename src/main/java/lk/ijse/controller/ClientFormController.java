@@ -9,6 +9,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -16,11 +18,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -113,7 +116,7 @@ public class ClientFormController {
     }
 
     private void emojiButtonAction(ActionEvent event) {
-        emojiPane.setVisible(!emojiPane.isVisible());
+        emojiPane.setVisible(true);
         JFXButton button = (JFXButton) event.getSource();
         txtType.appendText(button.getText());
     }
@@ -197,11 +200,36 @@ public class ClientFormController {
     }
 
     public void btnImageOnAction(ActionEvent actionEvent) {
-    }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Image File");
+        FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", ".png", ".jpg", "*.jpeg");
+        fileChooser.getExtensionFilters().add(imageFilter);
+        File selectedFile = fileChooser.showOpenDialog(new Stage());
+        if (selectedFile != null) {
+            try {
+                byte[] bytes = Files.readAllBytes(selectedFile.toPath());
+                HBox hBox = new HBox();
+                hBox.setStyle("-fx-fill-height: true; -fx-min-height: 50; -fx-pref-width: 520; -fx-max-width: 520; -fx-padding: 10; -fx-alignment: center-right;");
 
+                // Display the image in an ImageView or any other UI component
+                ImageView imageView = new ImageView(new Image(new FileInputStream(selectedFile)));
+                imageView.setStyle("-fx-padding: 10px;");
+                imageView.setFitHeight(180);
+                imageView.setFitWidth(100);
+
+                hBox.getChildren().addAll(imageView);
+                clientVbox.getChildren().add(hBox);
+
+                //client.sendImage(bytes);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     public void btnEmojionAction(ActionEvent actionEvent) {
     }
+
 }
 
 
