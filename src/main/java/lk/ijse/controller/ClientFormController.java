@@ -20,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lk.ijse.User.User;
 
 import java.io.*;
 import java.net.Socket;
@@ -70,6 +71,7 @@ public class ClientFormController {
                     while (socket.isConnected()){
                         String receivingMsg = dataInputStream.readUTF();
                        appentText(receivingMsg, ClientFormController.this.clientVbox);
+
                     }
                 }catch (IOException e){
                     e.printStackTrace();
@@ -132,7 +134,7 @@ public class ClientFormController {
                 text.setStyle("-fx-font-size: 14");
                 TextFlow textFlow = new TextFlow(text);
 
-//              #0693e3 #37d67a #40bf75
+
                 textFlow.setStyle("-fx-background-color: #68fcdd; -fx-font-weight: bold; -fx-color: #ffffff; -fx-background-radius: 20px");
                 textFlow.setPadding(new Insets(5, 10, 5, 10));
                 text.setFill(Color.color(1, 1, 1));
@@ -198,33 +200,51 @@ public class ClientFormController {
     public void setClientName(String name) {
         clientName=name;
     }
+    
 
     public void btnImageOnAction(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Image File");
-        FileChooser.ExtensionFilter imageFilter = new FileChooser.ExtensionFilter("Image Files", ".png", ".jpg", "*.jpeg");
-        fileChooser.getExtensionFilters().add(imageFilter);
-        File selectedFile = fileChooser.showOpenDialog(new Stage());
-        if (selectedFile != null) {
-            try {
-                byte[] bytes = Files.readAllBytes(selectedFile.toPath());
-                HBox hBox = new HBox();
-                hBox.setStyle("-fx-fill-height: true; -fx-min-height: 50; -fx-pref-width: 520; -fx-max-width: 520; -fx-padding: 10; -fx-alignment: center-right;");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png",".jpg",".gif",".bmp","*.jpeg")
+        );
+        Stage stage = (Stage) clientPanel.getScene().getWindow();
 
-                // Display the image in an ImageView or any other UI component
-                ImageView imageView = new ImageView(new Image(new FileInputStream(selectedFile)));
-                imageView.setStyle("-fx-padding: 10px;");
-                imageView.setFitHeight(180);
-                imageView.setFitWidth(100);
+        File file = fileChooser.showOpenDialog(stage);
 
-                hBox.getChildren().addAll(imageView);
-                clientVbox.getChildren().add(hBox);
-
-                //client.sendImage(bytes);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        if (file != null) {
+            String sendImage = file.toURI().toString();
+            sendToUser(sendImage);
         }
+
+    }
+
+    private void sendToUser(String sendImage) {
+        HBox hBoxName = new HBox();
+        hBoxName.setAlignment(Pos.CENTER_RIGHT);
+        Text textName = new Text("Me");
+        TextFlow textFlowName = new TextFlow(textName);
+        hBoxName.getChildren().add(textFlowName);
+
+        Image image = new Image(sendImage);
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(200);
+        imageView.setFitWidth(200);
+
+        HBox hBox = new HBox();
+        hBox.setPadding(new Insets(5,5,5,10));
+        hBox.getChildren().add(imageView);
+        hBox.setAlignment(Pos.CENTER_RIGHT);
+
+        clientVbox.getChildren().add(hBoxName);
+        clientVbox.getChildren().add(hBox);
+
+        try {
+            dataOutputStream.writeUTF(clientName + "-" + sendImage);
+            dataOutputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public void btnEmojionAction(ActionEvent actionEvent) {

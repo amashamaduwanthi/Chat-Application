@@ -38,11 +38,16 @@ public class User {
                             }
                         }
                     }
+                    socket.close();
                 }catch (IOException e){
                     e.printStackTrace();
                 }
+
             }
         }).start();
+
     }
+
+
 }
 
